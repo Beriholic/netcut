@@ -2,7 +2,6 @@
 
 import { getRandomString } from "@/utils/util";
 import { Button, TextField } from "actify";
-import { randomBytes } from "crypto";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
@@ -13,11 +12,11 @@ export default function Home() {
   const enterClipBoard = () => {
     if (clipName === "") {
       const radomName = getRandomString(8);
-      router.push(`/clip/${radomName}`);
+      router.push(`/${radomName}`);
       return;
     }
 
-    router.push(`/clip/${clipName}`);
+    router.push(`/${clipName}`);
   };
 
   return (
