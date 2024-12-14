@@ -26,7 +26,8 @@
     "**/*.ts",
     "**/*.tsx",
     ".next/types/**/*.ts",
-    "app/clip/[name]/layout..tss"
+    "app/(clip)/[name]/layout..tss",
+    "server/server.js"
   ],
   "exclude": ["node_modules"]
 }
