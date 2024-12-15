@@ -1,6 +1,6 @@
 "use client";
-import { loadOrNewClipboard } from "@/api/clipboard";
-import { ClipBoard } from "@/api/model";
+import { clipboardApi } from "@/app/api/clipboard";
+import { ClipBoard } from "@/app/api/model";
 import { Button, SnackbarProvider } from "actify";
 import { useEffect, useState } from "react";
 
@@ -9,19 +9,52 @@ export default function ClipboardDetail({
 }: {
   params: Promise<{ name: string }>;
 }) {
-  const [clipboard, setClipBoard] = useState<ClipBoard>();
+  const [name, setName] = useState<string>();
+  const [clipboard, setClipBoard] = useState<ClipBoard | null>(null);
   const [clipContent, setClipContent] = useState("");
 
   useEffect(() => {
-    const fetchClipboard = async () => {
+    const fetchName = async () => {
       const name = (await params).name;
-      const clipboard = loadOrNewClipboard(name);
-      setClipBoard(clipboard);
-      setClipContent(clipboard?.content);
+      setName(name);
+    };
+
+    fetchName();
+  }, [params]);
+
+  useEffect(() => {
+    if (!name) return;
+
+    const fetchClipboard = async () => {
+      try {
+        const clip = await clipboardApi.loadClipboard(name);
+        setClipBoard(clip);
+        setClipContent(clip.content);
+      } catch (err) {
+        alert("load clipboard failed");
+        console.log(err);
+      }
     };
 
     fetchClipboard();
-  }, [params]);
+  }, [name]);
+
+  const updateClipboard = async () => {
+    if (clipboard === null) {
+      return;
+    }
+    const res = await clipboardApi.updateClipboard({
+      ...clipboard,
+      content: clipContent,
+    });
+    if (res) {
+      alert("保存成功");
+      setClipBoard({
+        ...clipboard,
+        content: clipContent,
+      });
+    }
+  };
 
   return (
     <div className="flex flex-row justify-center h-[calc(100vh-10%)] space-x-4">
@@ -38,7 +71,11 @@ export default function ClipboardDetail({
         <SnackbarProvider>
           {(state) => (
             <>
-              <Button variant="tonal" className="mb-2">
+              <Button
+                variant="tonal"
+                className="mb-2"
+                onPress={updateClipboard}
+              >
                 保存
               </Button>
               <Button

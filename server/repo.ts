@@ -1,30 +1,67 @@
-import { ClipBoard } from "@/api/model";
+import { ClipBoard } from "@/app/api/model";
 import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
 
-export async function getAllClip() {
-  const clips = prisma.clipboard.findMany();
-  return clips;
+async function newBlankClipboard(name: string) {
+  const expiredTime = 1000 * 60 * 60 * 24 * 3; // 3 days
+
+  try {
+    const clip = prisma.clipboard.create({
+      data: {
+        name: name,
+        content: "",
+        createdAt: new Date(),
+        expiredAt: new Date(Date.now() + expiredTime),
+        updatedAt: new Date(),
+      },
+    });
+    return clip;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  } catch (err: any) {
+    if (err.code === "P2002") {
+      console.log("Duplicate clipboard creation ignored.");
+      return null;
+    }
+    throw err;
+  }
 }
 
-export async function getClipByName({ name }: Readonly<{ name: string }>) {
-  const clip = prisma.clipboard.findFirst({
+async function getClipByName(name: string) {
+  return prisma.clipboard.findFirst({
     where: {
       name: name,
     },
+    select: {
+      name: true,
+      content: true,
+      expiredAt: true,
+      createdAt: true,
+      updatedAt: true,
+    },
   });
+}
+
+export async function getOrNewClipboard(name: string) {
+  let clip = await getClipByName(name);
+  if (clip === null) {
+    clip = await newBlankClipboard(name);
+  }
   return clip;
 }
 
-export async function saveClip({ clip }: Readonly<{ clip: ClipBoard }>) {
-  await prisma.clipboard.create({
-    data: {
-      id: clip.id,
-      name: clip.name,
-      content: clip.content,
-      expiredAt: clip.expiredAt,
-      createdAt: clip.createdAt,
-      updatedAt: clip.updatedAt,
-    },
-  });
+export async function updateClipboard(clip: ClipBoard) {
+  const res = await prisma.clipboard
+    .update({
+      where: {
+        name: clip.name,
+      },
+      data: {
+        content: clip.content,
+      },
+    })
+    .catch((err) => {
+      console.log("Update clipboard failed: " + err);
+      throw err;
+    });
+  return res.content;
 }
