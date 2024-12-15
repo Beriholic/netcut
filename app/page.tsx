@@ -1,6 +1,6 @@
 "use client";
 
-import { getRandomString } from "@/utils/util";
+import { getRandomString } from "@/utils/string";
 import { Button, TextField } from "actify";
 import { useRouter } from "next/navigation";
 import { useState } from "react";

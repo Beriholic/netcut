@@ -1,4 +1,4 @@
-export function getRandomString(length: number): String {
+export function getRandomString(length: number): string {
   const base = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
   let result = "";
 
