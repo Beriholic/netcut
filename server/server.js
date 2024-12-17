@@ -3,6 +3,7 @@ import bodyParser from "body-parser";
 import next from "next";
 import { getOrNewClipboard, updateClipboard } from "./repo";
 import { startCron } from "./cron";
+import logger from "./logger";
 
 const port = 3000;
 const dev = process.env.NODE_ENV !== "production";
@@ -55,7 +56,7 @@ app.prepare().then(() => {
       console.log(err);
       return;
     }
-    console.log(`Ready on http://localhost:${port}`);
+    logger.info(`Ready on http://localhost:${port}`);
     startCron();
   });
 });

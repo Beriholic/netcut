@@ -1,5 +1,6 @@
 import { ClipBoard } from "@/app/api/model";
 import { PrismaClient } from "@prisma/client";
+import logger from "./logger";
 
 const prisma = new PrismaClient();
 
@@ -20,7 +21,7 @@ async function newBlankClipboard(name: string) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (err: any) {
     if (err.code === "P2002") {
-      console.log("Duplicate clipboard creation ignored.");
+      logger.warn("Duplicate clipboard creation ignored.");
       return null;
     }
     throw err;
@@ -61,7 +62,7 @@ export async function updateClipboard(clip: ClipBoard) {
       },
     })
     .catch((err) => {
-      console.log("Update clipboard failed: " + err);
+      logger.error("Update clipboard failed: " + err);
       throw err;
     });
   return res.content;
@@ -75,5 +76,5 @@ export async function deleteExpiredClipborad() {
       },
     },
   });
-  console.log("Expired clipboard deleted. Count: " + res.count);
+  logger.info(`Expired clipboard deleted. Count: ${res.count}`);
 }

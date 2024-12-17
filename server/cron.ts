@@ -1,16 +1,17 @@
 import cron from "node-cron";
 import { deleteExpiredClipborad } from "./repo";
+import logger from "./logger";
 
 function regDeleteExpiredClipboradJob() {
   const time = "0 0 * * *";
 
-  console.log("Running delete expired clipboard job...");
+  logger.info(`Running delete expired clipboard job at ${time}`);
   cron.schedule(time, deleteExpiredClipborad);
-  console.log("Delete expired clipboard job completed.");
+  logger.info(`Delete expired clipboard job registered.`);
 }
 
 export async function startCron() {
-  console.log("Starting cron job...");
+  logger.info("Starting cron job...");
   regDeleteExpiredClipboradJob();
-  console.log("Cron job started.");
+  logger.info("Cron job started.");
 }
