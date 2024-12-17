@@ -1,5 +1,6 @@
 import { ClipBoard } from "@/app/api/model";
 import { PrismaClient } from "@prisma/client";
+
 const prisma = new PrismaClient();
 
 async function newBlankClipboard(name: string) {
@@ -64,4 +65,15 @@ export async function updateClipboard(clip: ClipBoard) {
       throw err;
     });
   return res.content;
+}
+
+export async function deleteExpiredClipborad() {
+  const res = await prisma.clipboard.deleteMany({
+    where: {
+      expiredAt: {
+        lt: new Date(),
+      },
+    },
+  });
+  console.log("Expired clipboard deleted. Count: " + res.count);
 }
